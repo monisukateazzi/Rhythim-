@@ -1,0 +1,380 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Rhythm++</title>
+
+        <link rel="preconnect" href="https://fonts.googleapis.com">
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link href="https://fonts.googleapis.com/css2?family=Audiowide&display=swap" 
+        rel="stylesheet"
+        />
+
+        <style>
+            *, *::before, *::after {
+                box-sizing: border-box;
+                margin: 0;
+                padding: 0;
+            }
+            
+            :root {
+              --neon-cyan: #0ff5ff;
+              --neon-green: #39ff14;
+              --neon-pink:#ff2d78;
+              --neon-yellow:#ffe600; 
+              --neon-purple: #bf5fff; 
+            
+            --bg-void: #060810; 
+            --bg-deep: #0b0f1a; 
+            --bg-surface:#111827;
+            --bg-elivated:#1a2235;
+            --bg-card: #1e293b;
+
+            --text-primary: #e2eaf5;
+            --text-secondary: #7c8fa8;
+            --text-muted: #3d4f66;
+
+            --border-dim: rgba(0, 245, 255, 0,12);
+            --border-glow: rgba(0, 245, 255, 0,45);
+
+            --font-display:'Orbriton', sans-serif;
+            --font-code: 'JetBrains Mono', monospace;
+         
+            --gap-sm: 0,5rem;
+            --gap-md: 1rem;
+            --gap-lg: 1.5rem;
+            --gap-xl: 2rem;
+
+            --radius-md: 4px;
+            --radius-mg: 8px;
+            --radius-lg: 12px;
+            }
+
+        html, body{
+            height: 100%;
+        }
+
+        body{
+            background-color:#0d0c24;
+            color: #00ea4e;
+            font-family: 'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif;
+            font-size: 16px;
+            line-height: 1,6;
+            overflow-x: hidden;
+        }
+
+        .sr.only {
+            position: absolute;
+            width: 1px; height: 1px;
+            overflow: hidden;
+            clip: rect(0, 0, 0, 0);
+            white-space: nowrap;
+        }
+        </style>
+    </head>
+
+    <body>
+        
+        <div class="scanlines" aria-hidden="true"></div>
+
+        <div id="app" class="app-wrapper">
+
+           <section id="screen-start" class="screen screen--start" aria-label="start-screen">
+
+             <header class="logo-block">
+                <div class="logo-eyebrow" aria-hidden="true">&lt;game&gt;</div>
+             </header>
+                <hi class="logo-title">
+                    <span class="logo-title_rhythm">Rhythm</span>
+                      <span class="logo-title_pp">++</span>
+                </hi>
+
+               <p class="logo-tagline">
+                  Type the code or die.
+               </p>
+
+               <div class="grid-decoration" aria-hidden="true"></div>
+
+            <div class="start-action">
+                <button id="btn-start" class="btn btn--primary btn--lg" type="button">
+                    <span class="btn__icon" aria-hidden="true">></span>
+                    Start Game
+                </button>
+                <fieldset class="difficulty-sector" id="difficulty-sector">
+                    <legend class="difficulty-sector__labels">Difficulty</legend>
+                    <div class="difficulty-selector__options">
+                     <label class="difficulty-option">
+                        <input type="radio" name="difficulty" value="easy" class="difficulty-option__input" />
+                        <span class="difficulty-option__chip">Easy</span>
+                     </label>
+                     <label class="difficulty-option">
+                        <input type="radio" name="difficulty" value="normal" class="difficulty-option__input" />
+                        <span class="difficulty-option__chip">Normal</span>
+                     </label>
+                     <label class="difficulty-option">
+                        <input type="radio" name="difficulty" value="hard" class="difficulty-option__input" />
+                        <span class="difficulty-option__chip">Hard</span>
+                     </label>
+                    </div>
+                </fieldset>
+            </div>
+
+            <div class="high-score-badge" id="high-score-badge" aria-live="polite">
+                <span class="high-score-badge__label">Best Score</span>
+                <span class="high-score-badge__value" id="high-score-value">-</span>
+            </div>
+
+            </section>
+
+            <main id="screen-game" class="screen screen--game" aria-label="Game screen" hidden>
+
+            <div class="xp-bar-wrapper" aria-label="XP Progress">
+                <div class="xp-bar" id="xp-bar-fill" role="progressbar"
+                    aria-valuenow="0" aria-valuemin="0" aria-valuemax="100">
+                    <div class="xp-bar__fill" id="xp=bar-fill"></div>
+                </div>
+
+                <span class="xp-bar__label">
+                  LVL <span id="player-level">1</span>
+                </span>
+            </div>
+
+            <div class="hud-panel hud-panel--combo" id="hud-combo">
+                <span class="hud-panel__label">Combo</span>
+                <span class="hud-panel__value hud-panel__value--combo" id="combo_value"
+                      aria-live="polite" aria-atomic="true">
+                x<span id="combo-multiplayer">1</span>
+                </span>
+
+                <div class="combo-pips" id="combo-pips" aria-hidden="true">
+                    <span class="combo-pip"></span>
+                    <span class="combo-pip"></span>
+                    <span class="combo-pip"></span>
+                    <span class="combo-pip"></span>
+                    <span class="combo-pip"></span>
+                </div>
+            </div>
+
+            <div class="hud-panel hud-panel--accuracy" id="hud-accuracy">
+                <span class="hud-panel__label">Accuracy</span>
+                <span class="hud-panel__value" id="accuarcy-value" aria-live="polite">100%</span>
+            </div>
+
+            <button class="btn btn--icon hud-pause" id="btn-pause" type="button">
+                  <aria-label="Pause Game">
+                <span aria-hidden="true">▶️</span>
+            </button>
+
+
+        </header>
+
+        <div class="timer-track" role="timer" aria-label="Remaining time">
+            <div class="timer-track__bar" id="timer-bar"
+               role="progressbar"
+               aria-valuenow="100" aria-valuemin="0" aria-valuemax="100">
+            </div>
+
+            <div class="timer-track__pulse" id="timer-pulse" aria-hidden="true"></div>
+              <span class="timer-track__countdown" id="timer-countdown" aria-live="assertive"></span>
+        </div>
+
+        <section class="note-highway" id="note-highway" aria-label="Incoming code snippets">
+        
+           <div class="note-lane" id="lane-1" aria-hidden="true">
+            <!--Js-->
+           </div>
+
+           <div class="beat-lines" aria-hidden="true">
+            <div class="beat-lines beat-lines--major"></div>
+            <div class="beat-lines beat-lines--minor"></div>
+            <div class="beat-lines beat-lines--minor"></div>
+            <div class="beat-lines beat-lines--major"></div>
+           </div>
+
+           <div class="strike-zone" id="strike-zone" aria-hidden="true">
+              <span class="strike-zone__label">TYPE HERE</span>
+           </div>
+
+        </section>
+
+        <section class="snippet-stage" id="snippet-stage" aria-label="Currect code snippet">
+
+            <div class="snippet-meta">
+                <span class="snippet-meta__lang" id="snippet-lang">JS</span>
+                <span class="snippet-meta__difficulty" id="snippet-difficulty">NROMAL</span>
+                <span class="snippet-meta__index" id="snippet-index">01 / 10</span>
+            </div>
+
+            <pre class="snippet-display" id="snippet-display"
+              aria-label="Code snippet to type"
+             aria-live="polite">
+             <code>
+              <!--JS character-->
+              <span class="char char--pending">_</span>
+             </code>
+            </pre>
+
+         <span class="snippet-cursor" id="snippet-cursor" aria-hidden="true"></span>
+
+        </section>
+
+        <section class="input-zone" id="input-zone" aria-label="Typing area">
+
+            <div class="input-wrapper" id="input-wrapper">
+                <span class="input-prompt" aria-hidden="true">&gt;_</span>
+
+                <input
+                type="text"
+                id="player-input"
+                class="player-input"
+                placeholder="start_typing.."
+                autocomplete="off"
+                autocapitalize="none"
+                spellcheck="false"
+                aria-label="Type the code snippet here"
+                aria-describedby="snippet-display"
+                />
+
+                <span class="input-feedback" id="input-feedback" aria-hidden="true"></span>
+            </div>
+
+            <div class="keystroke-bar" id="keystroke-bar" aria-hidden="true">
+
+            </div>
+
+        </section>
+
+        <footer class="hud hud-buttom" aria-label="Security game info">
+            <div class="track-info" id="track-info">
+                <span class="track-info__label" aria-hidden="true"></span>
+                <span class="track-info__name" id="track-name">Runtime Renegade</span>
+            </div>
+        
+
+           <div class="snippet-counter" id="snippet-counter" aria-live="polite">
+                <span class="lives__label">HP</span>
+                <span class="lives__pip lives__pip--active" aria-label="Life 1"></span>
+                <span class="lives__pip lives__pip--active" aria-label="Life 2"></span>
+                <span class="lives__pip lives__pip--active" aria-label="Life 3"></span>
+           </div>
+        </footer>
+
+    </main>
+    
+    <div
+     id class="overlay-game-over"
+     class="overlay overlay-game-over"
+     role="dialog"
+     aria-modal="true"
+     aria-labelledby="game-over-title"
+     aria-describedby="game-over-desc"
+     hidden
+    >
+
+     <div class="modal modal--game-over" id="modal-game-over">
+
+       <h2 class="modal_title modal_title--glitch">
+         id="game-over-title"
+         data-text="GAME OVER">
+         GAME OVER
+       </h2>
+    
+
+       <p class="modal__subtitle" id="game-over-desc">
+         Syntax error in your soul.
+       
+       </p>
+
+       <div class="stats_breakdown" id="stats_breakdown" aria-label="Final stats">
+        
+        <div class="stats-row">
+            <span class="stats-row__label">Accuracy</span>
+            <span class="stats-row__value id="final-accuracy">-</span>
+        </div>
+        
+        <div class="stats-row">
+            <span class="stats-row__label">Best Combo</span>
+            <span class="stats-row__value id="final-accuracy">-</span>
+        </div>
+
+        <div class="stats-row">
+            <span class="stats-row__label">Snippets Typed</span>
+            <span class="stats-row__value id="final-accuracy">-</span>
+        </div>
+
+        <div class="stats-row">
+            <span class="stats-row__label">XP Earned</span>
+            <span class="stats-row__value id="final-accuracy">+0 XP</span>
+        </div>
+
+        </div>
+
+
+       <div class="new-record" id="new-record" hidden aria-live="assertive">
+        * NEW RECORD *
+       </div>
+
+       <div class="modal__action">
+          <button id="btn-restart" class="btn btn--primary" type="button">
+            <span aria-hidden="true">⟳</span>Retry
+          </button>
+          <button id="btn-restart" class="btn btn--secondary" type="button">
+            <span aria-hidden="true">≡</span>Main Menu
+          </button>
+       </div>
+
+
+      </div>
+    </div>
+
+    <div 
+    id class="overlay-pause"
+    class="overlay overlay-pauase"
+    role="dialog"
+    aria-modal="true"
+    aria-labelledby="pause-tittle"
+    hidden
+    >
+
+    <div class="modal modal--pause" id="modal-pause">
+        <h2 class="modal__title" id="pause-tittle">PAUSED</h2>
+
+        <div id="modal__actions modal__actions--colum">
+            <button id="btn-resume" class="btn btn--primary" type="button">
+                <span aria-hidden="true">▶</span> Resume
+            </button>
+            <button id="btn-restart-pause" class="btn btn--primary" type="button">
+                <span aria-hidden="true">⟳</span> Restart
+            </button>
+            <button id="btn-quit" class="btn btn--primary" type="button">
+                <span aria-hidden="true">➜]</span> Quit to Menus
+            </button>
+        </div>
+
+
+    </div>
+   </div>
+
+   <div
+    id="toast-level-up"\
+    class="toast toast--level-up"
+    role="status"
+    aria-live="polite"
+    aria-atomic="true"
+    hidden
+    >
+
+     <span class="toast__icon" aria-hidden="true">⚡︎</span>
+     <span class="toast__message">
+      LEVEL <span id="toast-new-level">2</span> UNLOCKED
+   </div>
+
+ </div>
+
+   <script>
+    console.log('Rhythm++ loaded. Ready for game logic.');
+   </script>
+   
+    </body>
+</html>
